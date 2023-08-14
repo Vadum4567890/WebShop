@@ -27,15 +27,16 @@ builder.Services.AddCors(c =>
 {
     c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 });
-
+builder.Services.AddDbContext<AppDbContext>(opt =>
+      opt.UseSqlServer(builder.Configuration.GetConnectionString("UsersConnection")));
 
 if (builder.Environment.IsStaging())
 {
     Console.WriteLine("\n---> Staging");
     Console.WriteLine("\n---> Using SQL Server Staging\n");
 
-    builder.Services.AddDbContext<AppDbContext>(opt =>
-         opt.UseSqlServer(builder.Configuration.GetConnectionString("UsersConnection")));
+    //builder.Services.AddDbContext<AppDbContext>(opt =>
+    //     opt.UseSqlServer(builder.Configuration.GetConnectionString("UsersConnection")));
 
     //Console.WriteLine("\n---> Using InMem Db Staging\n");
 
@@ -44,7 +45,7 @@ if (builder.Environment.IsStaging())
 }
 
 //Grpc
-builder.Services.AddScoped<IExamGrpcService, ExamGrpcService>();
+//builder.Services.AddScoped<IExamGrpcService, ExamGrpcService>();
 builder.Services.AddScoped<IReportGrpcService, ReportGrpcService>();
 
 // Email configuration
@@ -92,7 +93,7 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
     endpoints.MapGrpcService<ApplicantGrpcService>();
 });
-PrepDb.PrepPopulation(app, builder.Environment.IsProduction());
+// PrepDb.PrepPopulation(app, builder.Environment.IsProduction());
 
 app.Run();
 

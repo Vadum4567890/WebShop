@@ -36,18 +36,19 @@ namespace Applicant.API.Application.Services
         private PasswordHasher<User> _hasher;
         private readonly IEmailService _emailService;
         private readonly IRepositoryManager _repositoryManager;
-        private readonly IExamGrpcService _examGrpcService;
-        private readonly IReportGrpcService _reportGrpcService;
-
+        // private readonly IExamGrpcService _examGrpcService;
+        // private readonly IReportGrpcService _reportGrpcService;
+    // IReportGrpcService reportGrpcService,
+//    IExamGrpcService examGrpcService,
         public UserService(IRepositoryManager repositoryManager, IMapper mapper,
-            IReportGrpcService reportGrpcService, IExamGrpcService examGrpcService, IEmailService emailService)
+       IEmailService emailService)
         {
             _mapper = mapper;
             _emailService = emailService;
             _hasher = new PasswordHasher<User>();
             _repositoryManager = repositoryManager;
-            _reportGrpcService = reportGrpcService;
-            _examGrpcService = examGrpcService;
+            // _reportGrpcService = reportGrpcService;
+            // _examGrpcService = examGrpcService;
         }
 
         public async Task<IEnumerable<UserReadDto>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -131,7 +132,7 @@ namespace Applicant.API.Application.Services
             //    mail.Body = $"</h1>Your email: {userCreateDto.Email} | Password: {password}</h1>";
             //    //mail.Attachments.Add(new Attachment("D:\\Aloha.7z"));//--Uncomment this to send any attachment  
 
-            //    // SmtpClient клас з за до якого можна відправити лист
+            //    // SmtpClient пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 
             //    using (SmtpClient smtp = new SmtpClient(_emailConfig.SmtpServer, _emailConfig.Port))
             //    {
@@ -239,7 +240,7 @@ namespace Applicant.API.Application.Services
             //    mail.Body = $"<h1>Your access code: {accessCode}</h1>";
             //    //mail.Attachments.Add(new Attachment("D:\\Aloha.7z"));//--Uncomment this to send any attachment  
 
-            //    // SmtpClient клас з за до якого можна відправити лист
+            //    // SmtpClient пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 
             //    using (SmtpClient smtp = new SmtpClient(_emailConfig.SmtpServer, _emailConfig.Port))
             //    {
@@ -306,18 +307,18 @@ namespace Applicant.API.Application.Services
                 }
             }
 
-            // gRPC service delete report by userId
-            var reportResult =  _reportGrpcService.RemoveUserDataFromReport(id);
+            // // gRPC service delete report by userId
+            // var reportResult =  _reportGrpcService.RemoveUserDataFromReport(id);
 
-            if (reportResult.Success)
-            {
-                _repositoryManager.UserRepository.Delete(user);
-                await _repositoryManager.UnitOfWork.SaveChangesAsync(cancellationToken);
-            }
-            else
-            {
-                throw new UserNotFoundException(user.Id, reportResult.Error);
-            }
+            // if (reportResult.Success)
+            // {
+            //     _repositoryManager.UserRepository.Delete(user);
+            //     await _repositoryManager.UnitOfWork.SaveChangesAsync(cancellationToken);
+            // }
+            // else
+            // {
+            //     throw new UserNotFoundException(user.Id, reportResult.Error);
+            // }
         }
 
         public async Task AddRoleAsync(UserRoleDto userRoleDto, CancellationToken cancellationToken = default)
@@ -393,80 +394,80 @@ namespace Applicant.API.Application.Services
             await _repositoryManager.UnitOfWork.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<IEnumerable<UserExamDto>> GetUserExamsAsync(string id, CancellationToken cancellationToken = default)
-        {
-            var userExams = await _repositoryManager.UserExamsRepository.GetAllAsync(id);
-            var userExamsDto = _mapper.Map<IEnumerable<UserExamDto>>(userExams);
+        // public async Task<IEnumerable<UserExamDto>> GetUserExamsAsync(string id, CancellationToken cancellationToken = default)
+        // {
+        //     var userExams = await _repositoryManager.UserExamsRepository.GetAllAsync(id);
+        //     var userExamsDto = _mapper.Map<IEnumerable<UserExamDto>>(userExams);
 
-            return userExamsDto;
-        }
+        //     return userExamsDto;
+        // }
 
-        public async Task AddExamToUserAsync(UserExamDto userExamDto, CancellationToken cancellationToken = default)
-        {
+        // public async Task AddExamToUserAsync(UserExamDto userExamDto, CancellationToken cancellationToken = default)
+        // {
 
-            var user = await _repositoryManager.UserRepository.GetByIdAsync(userExamDto.UserId);
+        //     var user = await _repositoryManager.UserRepository.GetByIdAsync(userExamDto.UserId);
 
-            if (user is null)
-            {
-                throw new UserNotFoundException(userExamDto.UserId);
-            }
+        //     if (user is null)
+        //     {
+        //         throw new UserNotFoundException(userExamDto.UserId);
+        //     }
 
-            if (user.Roles.FirstOrDefault(x => x.Name == "Student") == null)
-            {
-                throw new UserAddToExamException(user.Id);
-            }
+        //     if (user.Roles.FirstOrDefault(x => x.Name == "Student") == null)
+        //     {
+        //         throw new UserAddToExamException(user.Id);
+        //     }
 
-            var userExam = await _repositoryManager.UserExamsRepository.GetByUserIdAndExamId(userExamDto.UserId, userExamDto.ExamId);
+        //     var userExam = await _repositoryManager.UserExamsRepository.GetByUserIdAndExamId(userExamDto.UserId, userExamDto.ExamId);
 
-            if (userExam != null)
-            {
-                throw new ExamIsAlreadyExistException(userExamDto.ExamId);
-            }
+        //     if (userExam != null)
+        //     {
+        //         throw new ExamIsAlreadyExistException(userExamDto.ExamId);
+        //     }
 
-            var examQuestions =  _examGrpcService.GetExamQuestions(userExamDto.ExamId);
+        //     // var examQuestions =  _examGrpcService.GetExamQuestions(userExamDto.ExamId);
 
-            if(!examQuestions.Exists)
-            {
-                throw new BadRequestMessage($"Could not add exam to user.Exam with id: {userExamDto.ExamId} not found!");
-            }
+        //     // if(!examQuestions.Exists)
+        //     // {
+        //     //     throw new BadRequestMessage($"Could not add exam to user.Exam with id: {userExamDto.ExamId} not found!");
+        //     // }
 
-            if(examQuestions.Questions.Count() == 0)
-            {
-                throw new BadRequestMessage($"could not add exam to user. Exam with id: {userExamDto.ExamId} is empty!");
-            }
+        //     // if(examQuestions.Questions.Count() == 0)
+        //     // {
+        //     //     throw new BadRequestMessage($"could not add exam to user. Exam with id: {userExamDto.ExamId} is empty!");
+        //     // }
 
 
-            // gRPC service check exam data in the report service
-            var reportResult =  _reportGrpcService.IsExistExamRequest(userExamDto.UserId, userExamDto.ExamId);
+        //     // // gRPC service check exam data in the report service
+        //     // var reportResult =  _reportGrpcService.IsExistExamRequest(userExamDto.UserId, userExamDto.ExamId);
 
-            if (reportResult.Success)
-            {
-                throw new BadRequestMessage($"Could not add exam to user. The exam with id: {userExamDto.ExamId} already exists in Report");
-            }
+        //     // if (reportResult.Success)
+        //     // {
+        //     //     throw new BadRequestMessage($"Could not add exam to user. The exam with id: {userExamDto.ExamId} already exists in Report");
+        //     // }
 
-            var newUserExam = new UserExams()
-            {
-                ExamId = userExamDto.ExamId,
-                UserId = userExamDto.UserId
-            };
+        //     // var newUserExam = new UserExams()
+        //     // {
+        //     //     ExamId = userExamDto.ExamId,
+        //     //     UserId = userExamDto.UserId
+        //     // };
 
-            _repositoryManager.UserExamsRepository.Insert(newUserExam);
-            await _repositoryManager.UnitOfWork.SaveChangesAsync(cancellationToken);
-        }
+        //     // _repositoryManager.UserExamsRepository.Insert(newUserExam);
+        //     await _repositoryManager.UnitOfWork.SaveChangesAsync(cancellationToken);
+        // }
 
-        public async Task RemoveExamFromUser(UserExamDto userExamDto, CancellationToken cancellationToken = default)
-        {
-            var userExam = await _repositoryManager.UserExamsRepository.GetByUserIdAndExamId(userExamDto.UserId, userExamDto.ExamId);
+        // public async Task RemoveExamFromUser(UserExamDto userExamDto, CancellationToken cancellationToken = default)
+        // {
+        //     var userExam = await _repositoryManager.UserExamsRepository.GetByUserIdAndExamId(userExamDto.UserId, userExamDto.ExamId);
 
-            if (userExam == null)
-            {
-                throw new ExamNotFoundInUserException(userExamDto.ExamId);
-            }
+        //     if (userExam == null)
+        //     {
+        //         throw new ExamNotFoundInUserException(userExamDto.ExamId);
+        //     }
 
-            _repositoryManager.UserExamsRepository.Remove(userExam);
+        //     _repositoryManager.UserExamsRepository.Remove(userExam);
 
-            await _repositoryManager.UnitOfWork.SaveChangesAsync(cancellationToken);
-        }
+        //     await _repositoryManager.UnitOfWork.SaveChangesAsync(cancellationToken);
+        // }
 
         private bool CheckPassword(User user, string password)
         {
@@ -492,26 +493,26 @@ namespace Applicant.API.Application.Services
             return new string(Enumerable.Repeat(chars, length).Select(x => x[_randomPassword.Next(x.Length)]).ToArray());
         }
 
-        public async Task<IEnumerable<UserExamReadDto>> GetExamUsersAsync(int examId, CancellationToken cancellationToken = default)
-        {
-            var examUsers = await _repositoryManager.UserExamsRepository.GetAllUsersByExamId(examId);
+        // public async Task<IEnumerable<UserExamReadDto>> GetExamUsersAsync(int examId, CancellationToken cancellationToken = default)
+        // {
+        //     var examUsers = await _repositoryManager.UserExamsRepository.GetAllUsersByExamId(examId);
 
-            var list = new List<UserExamReadDto>();
+        //     var list = new List<UserExamReadDto>();
 
-            foreach (var item in examUsers)
-            {
-                UserExamReadDto ue = new UserExamReadDto();
+        //     foreach (var item in examUsers)
+        //     {
+        //         UserExamReadDto ue = new UserExamReadDto();
                 
-                ue.ExamId = examId;
-                ue.User = _mapper.Map<UserReadDto>(item.User);
-                ue.User.Roles = "";
+        //         ue.ExamId = examId;
+        //         ue.User = _mapper.Map<UserReadDto>(item.User);
+        //         ue.User.Roles = "";
 
 
-                list.Add(ue);
-            }
+        //         list.Add(ue);
+        //     }
 
 
-            return list;
-        }
+        //     return list;
+        // }
     }
 }
